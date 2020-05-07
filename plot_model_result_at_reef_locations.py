@@ -4,6 +4,7 @@ from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 import cartopy.feature as cfeature
 import cartopy.crs as ccrs
 import pandas 
+import numpy as np
 import xarray as xr
 import xesmf
 
@@ -27,11 +28,15 @@ rf_locs['lat'] = xr.DataArray(data=df['LAT'], dims=('reef_sites'))
 regridder = xesmf.Regridder(ds.rename({'GEOLON_T': 'lon', 'GEOLAT_T': 'lat'}), rf_locs, 'bilinear', locstream_out=True)
 zpb_rf_locs = regridder((ds['SMALLZOO_BIOMASS']+ds['MEDZOO_BIOMASS']+ds['LARGEZOO_BIOMASS']))
 
+# Pick a month index
+nm = 6
+
 fid, ax =  plt.subplots() 
-zpb_rf_locs.isel(TIME=11).plot.hist(ax=ax,edgecolor='black') 
-ax.set_title('Zooplankton Biomass at Tropical Reef Sites')
+zpb_rf_locs.isel(TIME=nm).plot.hist(ax=ax,edgecolor='black') 
+ax.set_title('Total Zooplankton Biomass at Tropical Reef Sites')
 ax.set_ylabel('Number of Reef Sites')
 ax.set_xlabel('Zooplankton Biomass (units mass Carbon)')
+ax.text(ax.get_xlim()[1]-.4*(np.diff(ax.get_xlim())), ax.get_ylim()[1]-.1*(np.diff(ax.get_ylim())), zpb_rf_locs['TIME'].isel(TIME=nm).values, fontsize=12)
 
 plt.show()
 
